@@ -13,7 +13,12 @@ export const handleUrlShortener = async(req, res) => {
       redirectUrl: url,
       visitHistory: []
     })
-    res.status(200).json(shortUrl);
+    // res.status(200).json(shortUrl);
+    res.status(200).render("url", {
+      redirectLink: `http://localhost:8001/api/${shortUrl}`,
+      shortUrl
+    });
+
   } catch (error) {
     console.log(error);
   }
@@ -29,7 +34,7 @@ export const handleShortUrlId = async(req, res) => {
     // update visit count
     await UrlModel.findOneAndUpdate({shortUrl: shortId}, {$push: {visitHistory: {timestamp: Date.now()}}});
 
-    let urlData = await UrlModel.findOne({shortUrl});
+    let urlData = await UrlModel.findOne({shortUrl: shortId});
     // res.status(200).json({urlData})
     res.redirect(urlData.redirectUrl)
 
@@ -49,5 +54,16 @@ export const handleShortUrlAnalytics = async(req, res) => {
     res.status(200).json({totalClicks: analytics.visitHistory.length})
   } catch (error) {
     console.log(error);
+  }
+}
+
+export const handleUrlList = async(req,res) => {
+  try {
+    let urls = await UrlModel.find({});
+    res.status(200).render("userlist", {
+      urls
+    })
+  } catch (error) {
+    console.log(error)
   }
 }
